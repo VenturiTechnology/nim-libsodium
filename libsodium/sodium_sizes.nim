@@ -12,7 +12,11 @@ elif defined(macosx):
 else:
   const libsodium_fn* = "libsodium.so(.18|.23)"
 
-{.pragma: sodium_import, importc, dynlib: libsodium_fn.}
+when not defined(libsodiumStatic):
+  {.pragma: sodium_import, importc, dynlib: libsodium_fn.}
+else:
+  const libsodiumHeader {.strdefine.} = "<sodium.h>"
+  {.pragma: sodium_import, importc, header: libsodiumHeader.}
 
 proc crypto_aead_aes256gcm_abytes*(): cint {.sodium_import.}
 proc crypto_aead_aes256gcm_keybytes*(): cint {.sodium_import.}

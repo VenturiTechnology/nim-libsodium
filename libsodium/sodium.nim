@@ -19,13 +19,15 @@ elif defined(macosx):
 else:
   const libsodium_fn* = "libsodium.so(.18|.23)"
 
-
-{.pragma: sodium_import, importc, dynlib: libsodium_fn.}
-
+when not defined(libsodiumStatic):
+  {.pragma: sodium_import, importc, dynlib: libsodium_fn.}
+else:
+  const libsodiumHeader {.strdefine.} = "<sodium.h>"
+  {.pragma: sodium_import, importc, header: libsodiumHeader.}
 
 # helpers
 
-type cptr* = ptr char
+type cptr* = ptr cuchar
 
 template cpt(target: string): untyped =
   cast[cptr](cstring(target))
@@ -102,6 +104,60 @@ proc is_zero*(data: string): bool =
     rc = sodium_is_zero(n, n_len)
   return rc == 1
 
+type
+  Sodium_base64_VARIANT* = enum
+    ORIGINAL = 1
+    ORIGINAL_NO_PADDING = 3
+    ORIGINAL_URL_SAFE = 5
+    ORIGINAL_URLSAFE_NO_PADDING = 7
+
+proc sodium_bin2base64*(
+  b64: ptr char,
+  b64_maxlen: csize_t,
+  bin: cptr,
+  bin_len: csize_t,
+  variant: Sodium_base64_VARIANT
+): ptr char {.sodium_import.}
+
+proc sodium_base64_encoded_len*(
+  bin_len: csize_t,
+  variant: Sodium_base64_VARIANT
+): cint {.sodium_import.}
+
+proc bin2base64*(
+  data: string,
+  variant: Sodium_base64_VARIANT
+): string =
+  let 
+    b64len = sodium_base64_encoded_len(data.len.csize_t, variant)
+  result = newString b64len
+  let
+    b64 = cast[ptr char](cstring(result))
+    b64_maxlen = cpsize result
+    bin = cpt data
+    bin_len = cpsize data
+  discard sodium_bin2base64(b64, b64_maxlen, bin, bin_len, variant)
+
+proc sodium_base642bin*(
+  bin: cptr,
+  bin_maxlen: csize_t,
+  b64: ptr char,
+  b64_len: csize_t,
+  ignore: cstring,
+  bin_len: ptr csize_t,
+  b64_end: ptr ptr char,
+  variant: Sodium_base64_VARIANT
+): cint {.sodium_import.}
+
+proc base642bin*(data: string, ignore = "", variant: Sodium_base64_VARIANT): string =
+  result = newString data.len
+  let
+    b64 = cpt data
+    b64_len = data.len.csize_t
+    bin_maxlen = cpsize data # todo: check this...  
+    bin = cpt result
+    ig = cpt ignore
+  discard sodium_base642bin(bin, bin_maxlen, b64, b64_len, ig.cstring, nil, nil, variant)
 
 proc sodium_bin2hex(
   hex: cptr,
