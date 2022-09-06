@@ -128,12 +128,12 @@ proc bin2base64*(
   data: string,
   variant: Sodium_base64_VARIANT
 ): string =
-  let 
+  let
     b64len = sodium_base64_encoded_len(data.len.csize_t, variant)
-  result = newString b64len
+  result = newString(b64len - 1)
   let
     b64 = cast[ptr char](cstring(result))
-    b64_maxlen = cpsize result
+    b64_maxlen = cpsize(result) + 1
     bin = cpt data
     bin_len = cpsize data
   discard sodium_bin2base64(b64, b64_maxlen, bin, bin_len, variant)
@@ -153,8 +153,8 @@ proc base642bin*(data: string, ignore = "", variant: Sodium_base64_VARIANT): str
   result = newString data.len
   let
     b64 = cpt data
-    b64_len = data.len.csize_t
-    bin_maxlen = cpsize data # todo: check this...  
+    b64_len = cpsize data
+    bin_maxlen = cpsize result # todo: check this...  
     bin = cpt result
     ig = cpt ignore
   discard sodium_base642bin(bin, bin_maxlen, b64, b64_len, ig.cstring, nil, nil, variant)
