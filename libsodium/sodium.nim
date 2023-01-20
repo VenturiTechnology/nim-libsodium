@@ -149,8 +149,8 @@ proc sodium_base642bin*(
   variant: Sodium_base64_VARIANT
 ): cint {.sodium_import.}
 
-proc base642bin*(data: string, ignore = "", variant: Sodium_base64_VARIANT): string =
-  result = newString data.len
+proc base642bin*(data: string, ignore = "", variant: Sodium_base64_VARIANT, size: cint = 32): string =
+  result = newString size
   let
     b64 = cpt data
     b64_len = cpsize data
@@ -636,6 +636,26 @@ proc crypto_box_open_easy*(ciphertext, nonce: string,
     rc = crypto_box_open_easy(m, c, clen, n, pk, sk)
   check_rc rc
 
+proc crypto_box_open_easy*(
+  ciphertext: var openArray[byte],
+  ciphertextLen: culonglong or uint16, # my hack
+  nonce: string,
+  public_key: CryptoBoxPublicKey,
+  secret_key: CryptoBoxSecretKey,
+  decrypted: var openArray[byte],
+  decrypedLen: var int # Int?
+) =
+  doAssert nonce.len == crypto_box_NONCEBYTES()
+  # result = newString ciphertext.len - crypto_box_MACBYTES()
+  let
+    m = cast[ptr cuchar](addr decrypted[0])
+    c = cast[ptr cuchar](addr ciphertext[0])
+    clen = culong ciphertextLen
+    n = cpt nonce
+    pk = cpt public_key
+    sk = cpt secret_key
+    rc = crypto_box_open_easy(m, c, clen, n, pk, sk)
+  check_rc rc
 
 
 # Public-key cryptography: Public-key signatures

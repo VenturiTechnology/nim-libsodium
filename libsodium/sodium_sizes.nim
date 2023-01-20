@@ -52,6 +52,7 @@ proc crypto_box_curve25519xsalsa20poly1305_publickeybytes*(): cint {.sodium_impo
 proc crypto_box_curve25519xsalsa20poly1305_secretkeybytes*(): cint {.sodium_import.}
 proc crypto_box_curve25519xsalsa20poly1305_seedbytes*(): cint {.sodium_import.}
 proc crypto_box_curve25519xsalsa20poly1305_zerobytes*(): cint {.sodium_import.}
+proc crypto_box_curve25519xsalsa20poly1305_messagebytes_max*(): csize_t {.sodium_import.}
 proc crypto_box_macbytes*(): cint {.sodium_import.}
 proc crypto_box_noncebytes*(): cint {.sodium_import.}
 proc crypto_box_publickeybytes*(): cint {.sodium_import.}
