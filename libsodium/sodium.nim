@@ -642,8 +642,7 @@ proc crypto_box_open_easy*(
   nonce: string,
   public_key: CryptoBoxPublicKey,
   secret_key: CryptoBoxSecretKey,
-  decrypted: var openArray[byte],
-  decrypedLen: var int # Int?
+  decrypted: var openArray[byte]
 ) =
   doAssert nonce.len == crypto_box_NONCEBYTES()
   # result = newString ciphertext.len - crypto_box_MACBYTES()
