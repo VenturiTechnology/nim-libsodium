@@ -301,7 +301,7 @@ proc crypto_secretbox_keygen*(): string =
   let c_key = cpt result
   crypto_secretbox_keygen(c_key)
 
-proc crypto_secretbox_easy(
+proc crypto_secretbox_easy*(
   c: cptr,
   m: cptr,
   mlen: culonglong,
