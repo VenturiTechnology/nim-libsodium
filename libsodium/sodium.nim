@@ -27,7 +27,7 @@ else:
 
 # helpers
 
-type cptr* = ptr cuchar
+type cptr* = ptr char
 
 template cpt(target: string): untyped =
   cast[cptr](cstring(target))
