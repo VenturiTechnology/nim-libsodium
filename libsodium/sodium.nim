@@ -27,7 +27,10 @@ else:
 
 # helpers
 
-type cptr* = ptr char
+when defined(libsodiumStatic):
+  type cptr* = ptr cuchar # To correctly match the unsigned char on the libsodium header side
+else:
+  type cptr* = ptr char
 
 template cpt(target: string): untyped =
   cast[cptr](cstring(target))
